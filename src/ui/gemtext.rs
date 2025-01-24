@@ -1,13 +1,12 @@
 use crate::{GemFile, Line};
-//use crossterm::style::Stylize;
 use ratatui::{
     style::Stylize,
     text::{Line as TuiLine, Text},
     widgets::{Paragraph, StatefulWidget, Widget, Wrap},
-    Frame,
 };
+use std::{format, string::ToString, vec::Vec};
 
-impl StatefulWidget for GemFile {
+impl<'a> StatefulWidget for GemFile<'a> {
     type State = bool;
     fn render(
         self,
@@ -23,8 +22,8 @@ impl StatefulWidget for GemFile {
     }
 }
 
-impl Into<TuiLine<'static>> for Line {
-    fn into(self) -> TuiLine<'static> {
+impl<'a> Into<TuiLine<'a>> for Line<'a> {
+    fn into(self) -> TuiLine<'a> {
         match self {
             Self::Text(text) => TuiLine::from(text),
             Self::H1(text) => TuiLine::from(text.bold().underlined().italic()),
@@ -35,7 +34,7 @@ impl Into<TuiLine<'static>> for Line {
                 if let Some(text) = opt_text.clone() {
                     text
                 } else {
-                    link.clone()
+                    link
                 },
                 if let Some(_) = opt_text {
                     format!("({})", link)
@@ -46,12 +45,13 @@ impl Into<TuiLine<'static>> for Line {
             Self::ListItem(text) => TuiLine::from(format!("•{}", text)),
             Self::Quote(text) => TuiLine::from(format!(">{}", text)).italic(),
             Self::ModeToggle => TuiLine::from(""),
+            Self::EOF => TuiLine::from(""),
         }
     }
 }
 
-impl Into<Text<'static>> for Line {
-    fn into(self) -> Text<'static> {
+impl<'a> Into<Text<'a>> for Line<'a> {
+    fn into(self) -> Text<'a> {
         match self {
             Self::Text(text) => Text::from(text),
             Self::H1(text) => Text::from(text.bold().underlined().italic()),
@@ -62,7 +62,7 @@ impl Into<Text<'static>> for Line {
                 if let Some(text) = opt_text.clone() {
                     text
                 } else {
-                    link.clone()
+                    link
                 },
                 if let Some(_) = opt_text {
                     format!("({})", link)
@@ -73,6 +73,7 @@ impl Into<Text<'static>> for Line {
             Self::ListItem(text) => Text::from(format!("•{}", text)),
             Self::Quote(text) => Text::from(format!(">{}", text)).italic(),
             Self::ModeToggle => Text::from(""),
+            Self::EOF => Text::from(""),
         }
     }
 }

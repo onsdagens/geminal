@@ -1,6 +1,6 @@
-use argo::GemFile;
+use argo::{GemFile, Line};
 use crossterm::event::{self, Event};
-use ratatui::{text::Text, widgets::Paragraph, Frame};
+use ratatui::Frame;
 
 fn main() {
     let mut terminal = ratatui::init();
@@ -14,8 +14,7 @@ fn main() {
 }
 
 fn draw(frame: &mut Frame) {
-    let gemfile = GemFile::parse(
-        "Hello World!
+    let text =         "Hello World!
 Here is a line
 here is a super long line i wonder what will happen when the length of the line overruns the width of the terminal, i would really love to see it wrap automagically
 # Here is a header
@@ -26,8 +25,12 @@ here is a super long line i wonder what will happen when the length of the line 
 => hereislink with optional text
 *here is a list item
 *here is another list item
-"
-        .lines(),
-    );
+";
+
+    let lines = text.lines();
+
+    let buf: &mut [Line] = &mut [Line::EOF; 100];
+
+    let gemfile = GemFile::parse(buf, &lines);
     frame.render_stateful_widget(gemfile, frame.area(), &mut true);
 }
