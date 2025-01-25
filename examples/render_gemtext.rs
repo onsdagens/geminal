@@ -2,6 +2,11 @@ use argo::{GemFile, Line};
 use crossterm::event::{self, Event};
 use ratatui::Frame;
 
+// How many lines we expect to fit the screen.
+// This will allocate a buffer of this size to fit visible lines.
+// Underestimating this will limit the amount of lines drawn at any time,
+// while overestimating will allocate extra memory.
+const SCREEN_SIZE_LINES: usize = 100;
 fn main() {
     let mut terminal = ratatui::init();
     loop {
@@ -26,11 +31,10 @@ here is a super long line i wonder what will happen when the length of the line 
 *here is a list item
 *here is another list item
 ";
+    let lines: Vec<&str> = text.lines().collect();
+    let lines = lines.as_slice();
+    let buf: &mut [Line] = &mut [Line::EOF; SCREEN_SIZE_LINES];
 
-    let lines = text.lines();
-
-    let buf: &mut [Line] = &mut [Line::EOF; 100];
-
-    let gemfile = GemFile::parse(buf, &lines);
+    let gemfile = GemFile::new_from_lines(buf, &lines, SCREEN_SIZE_LINES);
     frame.render_stateful_widget(gemfile, frame.area(), &mut true);
 }
